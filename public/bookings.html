@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Bookings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .card p {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Booking List</h1>
+        <div id="bookingsContainer">
+            <!-- Booking cards will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <script>
+        async function fetchBookings() {
+            try {
+                const response = await fetch('/api/bookings');
+                const bookings = await response.json();
+
+                const bookingsContainer = document.getElementById('bookingsContainer');
+                bookingsContainer.innerHTML = ''; // Clear any existing content
+
+                bookings.forEach(booking => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    card.innerHTML = `
+                        <h3>${booking.name}</h3>
+                        <p><strong>Email:</strong> ${booking.email}</p>
+                        <p><strong>Phone:</strong> ${booking.phone}</p>
+                        <p><strong>Package:</strong> ${booking.package}</p>
+                        <p><strong>Date:</strong> ${new Date(booking.date).toLocaleDateString()}</p>
+                        <p><strong>Guests:</strong> ${booking.guests}</p>
+                        <p><strong>Booking Date:</strong> ${new Date(booking.bookingDate).toLocaleDateString()}</p>
+                    `;
+                    bookingsContainer.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error fetching bookings:', error);
+                alert('Could not load bookings.');
+            }
+        }
+
+        // Fetch bookings when the page loads
+        window.onload = fetchBookings;
+    </script>
+</body>
+</html>

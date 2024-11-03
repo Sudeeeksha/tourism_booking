@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bejing</title>
+
+    <style>
+        .container{
+            position: absolute;
+            width: 80%;
+            height: 630px;
+            padding: 10px;
+            top: 30%;
+            margin: auto;
+            left: 10%;
+            background-color: #f0f0f0;
+        }
+
+        p{
+            font-family: Arial, sans-serif;
+            font-weight: 500;
+            font-size: xx-large;
+            margin-left: 30px;
+            margin-right: 30px;
+        }
+
+        .card img{
+            position: absolute;
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            margin: 0%;
+            padding: 0%;
+            z-index: -1;
+            
+        }
+        
+        ul{
+            list-style: none;
+            font-family: Arial, sans-serif;
+            font-weight: 500;
+            font-size: xx-large;
+            background-color: #f0f0f0;
+        }
+        .card{
+            position: relative;
+            border: solid rgb(198, 191, 191);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 
+            0 6px 20px rgba(0, 0, 0, 0.3); /* Shadow effect */
+            font-family: Arial,  sans-serif;
+            font-family: Arial,  sans-serif;
+            height: 1140px;
+            width: 60%;
+            left: 20%;
+        }
+        .book-now-button {
+        position: relative;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 20px;
+        left: 40%;
+        }
+
+        .book-now-button:hover {
+        background-color: #218838;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="card">
+     <img src="https://www.bain.com/contentassets/a09b8e117536469d9f00a4e4dbc264ee/beijing-3_1.png">
+    <div class="container">
+        <h1>Bejing , China</h1>
+        <p>Beijing, the vibrant capital of China, offers a captivating blend of ancient history and modern marvels, making it a must-visit travel destination. Home to iconic landmarks like the Great Wall, the Forbidden City, and the Temple of Heaven, Beijing provides a glimpse into China’s rich cultural heritage. The city’s bustling streets, filled with traditional markets and modern skyscrapers, offer diverse culinary experiences, from Peking duck to street food delicacies. Beijing's dynamic atmosphere, combined with its historical significance and vibrant culture, creates an unforgettable experience for travelers seeking both exploration and discovery.</p>
+        <ul>
+            <li>Price : </li>
+            <li>Rs.50000 per head</li>
+            <li>*Special 10% discount for couples</li>
+        </ul>
+        <button class="book-now-button" onclick="window.location.href= 'http://localhost:3000/price.html'">Book Now</button>
+
+    </div>
+</div>
+</body>
+</html>
