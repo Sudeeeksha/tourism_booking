@@ -1,8 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
-const app = express();
 require('dotenv').config();
+
+const app = express();
 const port = process.env.PORT || 3009;
 
 // MongoDB connection
@@ -30,17 +31,12 @@ const bookingSchema = new mongoose.Schema({
 const Booking = mongoose.model('Booking', bookingSchema);
 
 // Middleware
-// Serve static files from the public directory
 app.use(express.static('public'));
 app.use(express.json());
-
-// Routes
-// Root route - serve price.html
-app.use(express.static('public'));
 app.use(express.static('frontend'));
 app.use(express.static('places'));
 
-
+// Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
@@ -48,33 +44,88 @@ app.get('/', (req, res) => {
 app.get('/template', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'template.html'));
 });
-// Booking form route
+
 app.get('/bookings', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'book.html'));
 });
 
-app.get('/arenal', (req, res) => {
-    res.sendFile(path.join(__dirname, 'places', 'arenal.html'));
-});
-app.get('/beijing', (req, res) => {
-    res.sendFile(path.join(__dirname, 'places', 'beijing.html'));
-});
-app.get('/blue', (req, res) => {
-    res.sendFile(path.join(__dirname, 'places', 'blue.html'));
-});
-app.get('/machu', (req, res) => {
-    res.sendFile(path.join(__dirname, 'places', 'machu.html'));
-});
-app.get('/paris', (req, res) => {
-    res.sendFile(path.join(__dirname, 'places', 'paris.html'));
-});
-app.get('/taj', (req, res) => {
-    res.sendFile(path.join(__dirname, 'places', 'taj.html'));
+app.get('/chatbot', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'chatbot.html'));
 });
 
+// Travel packages data
+const packages = [
+    { name: "Blue Lagoon", price: 50000, info: "A serene geothermal spa in Iceland known for its vibrant blue waters." },
+    { name: "Taj Mahal", price: 20000, info: "A majestic symbol of love in India, one of the New Seven Wonders of the World." },
+    { name: "Machu Picchu", price: 40000, info: "A historic Inca city in Peru, offering breathtaking views of the Andes mountains." },
+    { name: "Arenal Volcano", price: 60000, info: "An active volcano in Costa Rica, surrounded by lush rainforest and hot springs." },
+    { name: "Paris", price: 70000, info: "The romantic city of lights, known for the Eiffel Tower, museums, and fine cuisine." },
+    { name: "Beijing", price: 40000, info: "The capital of China, home to the Great Wall and rich in cultural heritage." }
+];
 
-// API routes
-// Get all bookings
+// Function to find the best package based on budget
+const getBestPackage = (budget) => {
+    const availablePackages = packages.filter(pkg => pkg.price <= budget);
+    if (availablePackages.length > 0) {
+        return availablePackages.reduce((prev, curr) => (curr.price > prev.price ? curr : prev));
+    }
+    return null;
+};
+
+// Define the /api/suggest-packages endpoint using local chatbot API
+app.post('/api/suggest-packages', async (req, res) => {
+    const budget = parseInt(req.body.budget);
+
+    if (isNaN(budget) || budget <= 0) {
+        return res.status(400).json({ message: "Invalid budget. Please enter a positive number." });
+    }
+
+    const bestPackage = getBestPackage(budget);
+
+    if (!bestPackage) {
+        return res.json({ suggestion: "Sorry, no packages are available within your budget. Please try a higher budget." });
+    }
+
+    const prompt = `The user has a budget of Rs.${budget}. Recommend the best package: ${bestPackage.name} for Rs.${bestPackage.price}.`;
+
+    try {
+        // Call the local chatbot API
+        const response = await fetch('http://localhost:3009/api/chatbot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Chatbot API error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const enhancedSuggestion = data.choices[0].text.trim();
+        res.json({ suggestion: enhancedSuggestion });
+    } catch (error) {
+        console.error('Error with Chatbot API:', error);
+        res.status(500).json({ message: 'Error fetching suggestions. Please try again later.' });
+    }
+});
+
+// Chatbot API endpoint
+app.post('/api/chatbot', (req, res) => {
+    const prompt = req.body.prompt;
+
+    // Mock response from chatbot (Replace this with actual chatbot logic if needed)
+    const responseText = `Based on the prompt: ${prompt}, I suggest you go for the best package available.`;
+    
+    res.json({
+        choices: [
+            { text: responseText }
+        ]
+    });
+});
+
+// API route to get all bookings
 app.get('/api/bookings', async (req, res) => {
     try {
         const bookings = await Booking.find().sort({ bookingDate: -1 });
@@ -85,7 +136,7 @@ app.get('/api/bookings', async (req, res) => {
     }
 });
 
-// Create new booking
+// API route to create a new booking
 app.post('/api/bookings', async (req, res) => {
     try {
         const newBooking = new Booking(req.body);

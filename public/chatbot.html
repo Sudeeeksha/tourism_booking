@@ -1,0 +1,107 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Suggestion Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .input-area {
+            display: flex;
+        }
+        input[type="number"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Package Suggestion Chatbot</h1>
+        <div class="messages" id="messages">
+            <!-- Chat messages will be displayed here -->
+        </div>
+        <div class="input-area">
+            <input type="number" id="budget" placeholder="Enter your budget" min="0" required>
+            <button id="submitBudget">Find Packages</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('submitBudget').addEventListener('click', async () => {
+            const budget = document.getElementById('budget').value;
+            const messagesDiv = document.getElementById('messages');
+    
+            if (budget && parseInt(budget) > 0) {
+                messagesDiv.innerHTML += `<div class="user-message">User: I have a budget of Rs.${budget}</div>`;
+                document.getElementById('submitBudget').disabled = true;
+                try {
+                    const response = await fetch('/api/suggest-packages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ budget }),
+                    });
+    
+                    const result = await response.json();
+    
+                    if (response.ok) {
+                        messagesDiv.innerHTML += `<div class="bot-message">Bot: ${result.suggestion}</div>`;
+                    } else {
+                        messagesDiv.innerHTML += `<div class="bot-message">Bot: ${result.message}</div>`;
+                    }
+    
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                } catch (error) {
+                    console.error('Error:', error);
+                    messagesDiv.innerHTML += `<div class="bot-message">Bot: An error occurred. Please try again later.</div>`;
+                }
+            } else {
+                alert("Please enter a valid budget.");
+            }
+        });
+    </script>
+    
+
+</body>
+</html>  
+
