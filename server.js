@@ -1,10 +1,20 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const bodyParser = require('body-parser');
+const { spawn } = require('child_process');
+
+
+
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3009;
+
+app.use(bodyParser.urlencoded({ extended: true }));
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
@@ -36,6 +46,7 @@ app.use(express.json());
 app.use(express.static('frontend'));
 app.use(express.static('places'));
 
+
 // Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
@@ -53,77 +64,8 @@ app.get('/chatbot', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'chatbot.html'));
 });
 
-// Travel packages data
-const packages = [
-    { name: "Blue Lagoon", price: 50000, info: "A serene geothermal spa in Iceland known for its vibrant blue waters." },
-    { name: "Taj Mahal", price: 20000, info: "A majestic symbol of love in India, one of the New Seven Wonders of the World." },
-    { name: "Machu Picchu", price: 40000, info: "A historic Inca city in Peru, offering breathtaking views of the Andes mountains." },
-    { name: "Arenal Volcano", price: 60000, info: "An active volcano in Costa Rica, surrounded by lush rainforest and hot springs." },
-    { name: "Paris", price: 70000, info: "The romantic city of lights, known for the Eiffel Tower, museums, and fine cuisine." },
-    { name: "Beijing", price: 40000, info: "The capital of China, home to the Great Wall and rich in cultural heritage." }
-];
-
-// Function to find the best package based on budget
-const getBestPackage = (budget) => {
-    const availablePackages = packages.filter(pkg => pkg.price <= budget);
-    if (availablePackages.length > 0) {
-        return availablePackages.reduce((prev, curr) => (curr.price > prev.price ? curr : prev));
-    }
-    return null;
-};
-
-// Define the /api/suggest-packages endpoint using local chatbot API
-app.post('/api/suggest-packages', async (req, res) => {
-    const budget = parseInt(req.body.budget);
-
-    if (isNaN(budget) || budget <= 0) {
-        return res.status(400).json({ message: "Invalid budget. Please enter a positive number." });
-    }
-
-    const bestPackage = getBestPackage(budget);
-
-    if (!bestPackage) {
-        return res.json({ suggestion: "Sorry, no packages are available within your budget. Please try a higher budget." });
-    }
-
-    const prompt = `The user has a budget of Rs.${budget}. Recommend the best package: ${bestPackage.name} for Rs.${bestPackage.price}.`;
-
-    try {
-        // Call the local chatbot API
-        const response = await fetch('http://localhost:3009/api/chatbot', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ prompt }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Chatbot API error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        const enhancedSuggestion = data.choices[0].text.trim();
-        res.json({ suggestion: enhancedSuggestion });
-    } catch (error) {
-        console.error('Error with Chatbot API:', error);
-        res.status(500).json({ message: 'Error fetching suggestions. Please try again later.' });
-    }
-});
-
-// Chatbot API endpoint
-app.post('/api/chatbot', (req, res) => {
-    const prompt = req.body.prompt;
-
-    // Mock response from chatbot (Replace this with actual chatbot logic if needed)
-    const responseText = `Based on the prompt: ${prompt}, I suggest you go for the best package available.`;
-    
-    res.json({
-        choices: [
-            { text: responseText }
-        ]
-    });
-});
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 // API route to get all bookings
 app.get('/api/bookings', async (req, res) => {
@@ -148,7 +90,112 @@ app.post('/api/bookings', async (req, res) => {
     }
 });
 
+//PREDICTION
+
+// Route to render the form where users input data
+app.get('/peakpredict', (req, res) => {
+    res.render('peakpredict');
+});
+
+// Handle prediction request
+app.post('/predict', (req, res) => {
+    const { Year, Month, Location, Event, Weather, Weekend } = req.body;
+
+    // Prepare input data to send to Python script
+    const input = JSON.stringify({
+        Year: parseInt(Year),
+        Month: parseInt(Month),
+        Location,
+        Event,
+        Weather,
+        Weekend
+    });
+
+    // Spawn the Python script to get the prediction
+    // Define the path to the Python script
+    const pythonScriptPath = path.join(__dirname, 'predict.py');
+    const python = spawn('python3', ['predict.py', input]);
+
+    python.stdout.on('data', (data) => {
+        try {
+            // Parse the output from the Python script
+            const result = JSON.parse(data.toString());
+
+            // Check if the result contains an error
+            if (result.error) {
+                console.error(result.error);
+                return res.status(500).render('error', { message: result.message });
+            }
+
+            // Render the result.ejs template with the prediction message
+            res.render('result', { result_message: result.message });
+        } catch (err) {
+            console.error('Failed to parse Python script output:', err);
+            res.status(500).render('error', { message: "Unexpected error in prediction processing." });
+        }
+    });
+
+    // Handle errors in the Python script
+    python.stderr.on('data', (data) => {
+        console.error(`Error from Python script: ${data}`);
+        res.status(500).render('error', { message: "An error occurred while predicting. Please try again." });
+    });
+});
+
+
+//CHATBOT 
+// Available tour packages
+// Travel packages data
+const packages = [
+    { name: "Blue Lagoon", price: 50000, info: "A serene geothermal spa in Iceland known for its vibrant blue waters." },
+    { name: "Taj Mahal", price: 20000, info: "A majestic symbol of love in India, one of the New Seven Wonders of the World." },
+    { name: "Machu Picchu", price: 40000, info: "A historic Inca city in Peru, offering breathtaking views of the Andes mountains." },
+    { name: "Arenal Volcano", price: 60000, info: "An active volcano in Costa Rica, surrounded by lush rainforest and hot springs." },
+    { name: "Paris", price: 70000, info: "The romantic city of lights, known for the Eiffel Tower, museums, and fine cuisine." },
+    { name: "Beijing", price: 40000, info: "The capital of China, home to the Great Wall and rich in cultural heritage." }
+];
+
+app.use(express.json());
+
+function generatePackageDetails() {
+    return packages.map(pkg => `
+        Package Name: ${pkg.name}
+        Price: ${pkg.price}
+        Info: ${pkg.info}
+    `).join('\n');
+}
+
+app.post('/api/chatbot', async (req, res) => {
+    const { question } = req.body;
+
+    if (!question || question.trim() === '') {
+        return res.status(400).json({ answer: 'Please provide a valid question.' });
+    }
+
+    const packageDetails = generatePackageDetails();
+    const prompt = `
+        You are a helpful tourism booking assistant. Here is the list of available tourism packages:\n${packageDetails}\n
+        User Question: ${question}\n
+        Respond only using the provided packages. If the question is unrelated to tourism or cannot be answered using the packages, provide a general tourism-related response.
+    `;
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const response = await model.generateContent([prompt]);
+
+        console.log("Full Response from Gemini:", response); // Debugging the response
+
+        const textResponse = response?.response?.text?.() || 'No valid response received from Gemini.';
+
+        res.json({ answer: textResponse });
+    } catch (error) {
+        console.error('Error communicating with Gemini:', error);
+        res.status(500).json({ answer: 'An error occurred while processing your request.' });
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+

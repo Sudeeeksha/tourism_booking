@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -33,7 +33,7 @@
         .input-area {
             display: flex;
         }
-        input[type="number"] {
+        input[type="text"] {
             flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
@@ -60,48 +60,48 @@
             <!-- Chat messages will be displayed here -->
         </div>
         <div class="input-area">
-            <input type="number" id="budget" placeholder="Enter your budget" min="0" required>
-            <button id="submitBudget">Find Packages</button>
+            <input type="text" id="budget" placeholder="Ask me anything about the packages" required>
+            <button id="submitQuery">Ask</button>
         </div>
     </div>
 
     <script>
-        document.getElementById('submitBudget').addEventListener('click', async () => {
-            const budget = document.getElementById('budget').value;
-            const messagesDiv = document.getElementById('messages');
-    
-            if (budget && parseInt(budget) > 0) {
-                messagesDiv.innerHTML += `<div class="user-message">User: I have a budget of Rs.${budget}</div>`;
-                document.getElementById('submitBudget').disabled = true;
-                try {
-                    const response = await fetch('/api/suggest-packages', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ budget }),
-                    });
-    
-                    const result = await response.json();
-    
-                    if (response.ok) {
-                        messagesDiv.innerHTML += `<div class="bot-message">Bot: ${result.suggestion}</div>`;
-                    } else {
-                        messagesDiv.innerHTML += `<div class="bot-message">Bot: ${result.message}</div>`;
-                    }
-    
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                } catch (error) {
-                    console.error('Error:', error);
-                    messagesDiv.innerHTML += `<div class="bot-message">Bot: An error occurred. Please try again later.</div>`;
-                }
+        document.getElementById('submitQuery').addEventListener('click', async () => {
+    const userQuery = document.getElementById('budget').value.trim();
+    const messagesDiv = document.getElementById('messages');
+
+    if (userQuery) {
+        messagesDiv.innerHTML += `<div class="user-message">User: ${userQuery}</div>`;
+        document.getElementById('budget').value = ''; // Clear the input field
+
+        try {
+            const response = await fetch('/api/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question: userQuery }), // Send the user's query
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Change from `choices[0].text` to `answer` based on the server's response
+                messagesDiv.innerHTML += `<div class="bot-message">Bot: ${result.answer}</div>`;
             } else {
-                alert("Please enter a valid budget.");
+                messagesDiv.innerHTML += `<div class="bot-message">Bot: ${result.message}</div>`;
             }
-        });
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        } catch (error) {
+            console.error('Error:', error);
+            messagesDiv.innerHTML += `<div class="bot-message">Bot: An error occurred. Please try again later.</div>`;
+        }
+    } else {
+        alert("Please enter your query.");
+    }
+});
+
     </script>
-    
-
 </body>
-</html>  
-
+</html>

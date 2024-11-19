@@ -1,5 +1,9 @@
 node_modules
 package-lock.json
 package.json
-chatbot.js
-*.env
+.env
+views
+predict.py
+tourism_peak_time_dataset.csv
+models
+.gitignore
