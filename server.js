@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const bodyParser = require('body-parser');
 const { spawn } = require('child_process');
-
-
+const axios = require('axios');
 
 require('dotenv').config();
 
@@ -90,58 +89,6 @@ app.post('/api/bookings', async (req, res) => {
     }
 });
 
-//PREDICTION
-
-// Route to render the form where users input data
-app.get('/peakpredict', (req, res) => {
-    res.render('peakpredict');
-});
-
-// Handle prediction request
-app.post('/predict', (req, res) => {
-    const { Year, Month, Location, Event, Weather, Weekend } = req.body;
-
-    // Prepare input data to send to Python script
-    const input = JSON.stringify({
-        Year: parseInt(Year),
-        Month: parseInt(Month),
-        Location,
-        Event,
-        Weather,
-        Weekend
-    });
-
-    // Spawn the Python script to get the prediction
-    // Define the path to the Python script
-    const pythonScriptPath = path.join(__dirname, 'predict.py');
-    const python = spawn('python3', ['predict.py', input]);
-
-    python.stdout.on('data', (data) => {
-        try {
-            // Parse the output from the Python script
-            const result = JSON.parse(data.toString());
-
-            // Check if the result contains an error
-            if (result.error) {
-                console.error(result.error);
-                return res.status(500).render('error', { message: result.message });
-            }
-
-            // Render the result.ejs template with the prediction message
-            res.render('result', { result_message: result.message });
-        } catch (err) {
-            console.error('Failed to parse Python script output:', err);
-            res.status(500).render('error', { message: "Unexpected error in prediction processing." });
-        }
-    });
-
-    // Handle errors in the Python script
-    python.stderr.on('data', (data) => {
-        console.error(`Error from Python script: ${data}`);
-        res.status(500).render('error', { message: "An error occurred while predicting. Please try again." });
-    });
-});
-
 
 //CHATBOT 
 // Available tour packages
@@ -180,7 +127,7 @@ app.post('/api/chatbot', async (req, res) => {
     `;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
         const response = await model.generateContent([prompt]);
 
         console.log("Full Response from Gemini:", response); // Debugging the response
@@ -194,8 +141,46 @@ app.post('/api/chatbot', async (req, res) => {
     }
 });
 
+//PREDICTION
+// app.get('/crowd-predictor', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public', 'crowd-predictor.html'));
+// });
+
+// const fs = require('fs');
+// const { LabelEncoder } = require('sklearn-preprocessing');
+// const { RandomForestClassifier } = require('sklearn-ensemble');
+// const pickle = require('picklejs');
+
+// app.post('/api/predict', (req, res) => {
+//     const { location, event, weather, weekend } = req.body;
+
+//     try {
+//         // Load the model and label encoders
+//         const model = pickle.load(fs.readFileSync('model.pkl'));
+//         const labelEncoders = pickle.load(fs.readFileSync('label_encoders.pkl'));
+
+//         // Encode input
+//         const encodedInput = [
+//             labelEncoders['Location'].transform([location])[0],
+//             labelEncoders['Event'].transform([event])[0],
+//             labelEncoders['Weather'].transform([weather])[0],
+//             weekend.toLowerCase() === 'yes' ? 1 : 0,
+//         ];
+
+//         // Predict
+//         const prediction = model.predict([encodedInput])[0];
+//         const result = prediction === 1 ? 'Peak Time' : 'Non-Peak Time';
+
+//         res.json({ prediction: result });
+//     } catch (error) {
+//         console.error('Error during prediction:', error);
+//         res.status(500).json({ error: 'Prediction failed. Please check input and try again.' });
+//     }
+// });
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+
 
