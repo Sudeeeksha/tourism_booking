@@ -7,42 +7,90 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="nav-whole">
-            <div class="container" >
-                <header class="d-flex justify-content-center py-3">
-                  <ul class="nav nav-pills">
+        <div class="container">
+            <header class="d-flex justify-content-center py-3">
+                <ul class="nav nav-pills">
                     <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Home</a></li>
                     <li class="nav-item"><a href="/template" class="nav-link">Features</a></li>
                     <li class="nav-item"><a href="/price.html" class="nav-link">Pricing</a></li>
                     <li class="nav-item"><a href="/book.html" class="nav-link">Bookings</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">FAQs</a></li>
                     <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
-                    <li class="nav-item"><a href="/crowd-predictor" class="nav-link">Crowd Predictor</a></li>
-                  </ul>
-                  <div class="chat"><a href="/chatbot.html">
-                    <i class="bi bi-chat-dots-fill"></i>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="30" fill="currentColor" class="bi bi-chat-dots-fill" viewBox="0 0 16 16">
-                      <path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
-                    </svg></a>
-                  </div>
-                </header>
-                
-              </div>
+                </ul>
+                <div class="chat">
+                    <a href="/chatbot.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-chat-dots-fill" viewBox="0 0 16 16">
+                            <path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+                        </svg>
+                    </a>
+                </div>
+            </header>
         </div>
-        <section class="img1">
-        <img src="rio-celeste-river-natural-wonders-costa-rica.jpg">  
-        <div class="overlay-text"><h1 style="font-weight:bold; ">WELCOME TO THE WORLD OF ADVENTURE</h1></div>
-        </section>
-    
-        <section class="about">
-            <div class="write">
-                <p>Discover your next adventure with our comprehensive travel guide! Whether you're seeking a relaxing beach getaway, a thrilling mountain trek, or an immersive cultural experience, our website has you covered. Explore top destinations, find hidden gems, and get insider tips on the best activities, accommodations, and local cuisine. Our user-friendly platform offers personalized recommendations based on your interests and budget. With detailed itineraries, real-time updates, and a vibrant travel community, planning your dream vacation has never been easier. Start your journey today and let us help you create unforgettable memories!</p>
+    </div>
 
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>WELCOME TO THE WORLD OF ADVENTURE</h1>
+            <p class="hero-subtitle">Discover breathtaking destinations and create unforgettable memories around the globe</p>
+            <div class="hero-buttons">
+                <a href="#about" class="btn-primary">Start Exploring</a>
+                <a href="/book.html" class="btn-secondary">Book Now</a>
             </div>
-        </section>
-   
+        </div>
+        <div class="hero-decoration">
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="about-card">
+                        <h2>Your Journey Begins Here</h2>
+                        <p>Discover your next adventure with our comprehensive travel guide! Whether you're seeking a relaxing beach getaway, a thrilling mountain trek, or an immersive cultural experience, our website has you covered.</p>
+                        
+                        <p>Explore top destinations, find hidden gems, and get insider tips on the best activities, accommodations, and local cuisine. Our user-friendly platform offers personalized recommendations based on your interests and budget.</p>
+                        
+                        <p>With detailed itineraries, real-time updates, and a vibrant travel community, planning your dream vacation has never been easier. Start your journey today and let us help you create unforgettable memories!</p>
+                        
+                        <div class="features-grid">
+                            <div class="feature-item">
+                                <div class="feature-icon">🏖️</div>
+                                <h4>Beach Getaways</h4>
+                                <p>Relax on pristine beaches</p>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🏔️</div>
+                                <h4>Mountain Adventures</h4>
+                                <p>Conquer breathtaking peaks</p>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🏛️</div>
+                                <h4>Cultural Experiences</h4>
+                                <p>Immerse in local traditions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p>&copy; 2024 Travel World. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
